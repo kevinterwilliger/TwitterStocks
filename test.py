@@ -33,13 +33,16 @@ def print_feels(seconds,feels) :
     while count < 5 :
         with open('Output.txt','a') as f:
             time.sleep(seconds)
-            f.write(f'[{time.ctime()}] Sentiment Score: {feels.sentiment.value}')
+            f.write(f'[{time.ctime()}] Sentiment Score: {feels.sentiment.value} \n')
             count+=1
-    print("Done.")
+    print("Halting process")
     feels.stop()
+    print("All done, Bye Now!")
+
 # t = Thread(target=print_feels)
 # apple_feels.start()
 # t.start()
 # time.sleep(30)
 # apple_feels.stop()
 print_feels(seconds=5,feels=apple_feels)
+print("here")
