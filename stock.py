@@ -3,7 +3,6 @@ import sqlite3
 import os
 import time
 import datetime
-from sentiment import clear_dbs
 
 
 def pull_stocks() :
@@ -26,17 +25,15 @@ def pull_stocks() :
     finally :
         c = conn.cursor()
         for name in names_list :
-            string = "CREATE TABLE "+ name +" (date text, price real)"
+            string = "CREATE TABLE "+ name + " (date text, price real)"
             c.execute(string)
-        now = datetime.datetime.now()
-        open = now.replace(hour=8,minute=30,second=0,microsecond=0)
-        close = now.replace(hour=16,minute=0,second=0,microsecond=0)
         count = 0
         while True :
-            while now < close and now > open :
+            while is_trading() :
                 print(f"starting cycle {count}")
                 for i in range(len(stock_list)) :
                     s = Stock(stock_list[i])
+                    time.sleep(60)
                     price = s.get_price()
                     date = str(time.ctime())
                     string = 'INSERT INTO ' + names_list[i] + ' VALUES (?,?)'
@@ -44,21 +41,33 @@ def pull_stocks() :
                 conn.commit()
                 time.sleep(60)
                 count += 1
-                now = datetime.datetime.now()
-            if now > close :
-                o = datetime.timedelta(hours=open.hour + 24, minutes=open.minute)
-                n = datetime.timedelta(hours=now.hour,minutes=now.minute,seconds=now.second,microseconds=now.microsecond)
-                difference = o - n
-                print("Stock market closed, waiting " + str(difference.total_seconds()) + " seconds")
-                time.sleep(difference.total_seconds())
-            elif now < open :
-                o = datetime.timedelta(hours=open.hour,minutes=open.minute)
-                n = datetime.timedelta(hours=now.hour,minutes=now.minute,seconds=now.second,microseconds=now.microsecond)
-                difference = o - n
-                print("Stock market closed, waiting " + str(difference.total_seconds()) + " seconds")
-                time.sleep(difference.total_seconds())
+            wait()
 
 
+def is_trading() :
+    now = datetime.datetime.now()
+    open = now.replace(hour=8,minute=30,second=0,microsecond=0)
+    close = now.replace(hour=16,minute=0,second=0,microsecond=0)
+    return (now < close and now > open)
 
-if __name__ == '__main__':
-    pull_stocks()
+def wait() :
+    now = datetime.datetime.now()
+    open = now.replace(hour=8,minute=30,second=0,microsecond=0)
+    close = now.replace(hour=16,minute=0,second=0,microsecond=0)
+
+    if now > close :
+        o = datetime.timedelta(hours=open.hour + 24, minutes=open.minute)
+        n = datetime.timedelta(hours=now.hour,minutes=now.minute,seconds=now.second,microseconds=now.microsecond)
+        difference = o - n
+        print("Stock market closed, waiting " + str(difference.total_seconds()) + " seconds")
+        time.sleep(difference.total_seconds())
+        return
+    elif now < open :
+        o = datetime.timedelta(hours=open.hour,minutes=open.minute)
+        n = datetime.timedelta(hours=now.hour,minutes=now.minute,seconds=now.second,microseconds=now.microsecond)
+        difference = o - n
+        print("Stock market closed, waiting " + str(difference.total_seconds()) + " seconds")
+        time.sleep(difference.total_seconds())
+        return
+    else :
+        return
