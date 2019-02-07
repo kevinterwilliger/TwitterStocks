@@ -54,18 +54,22 @@ def get_feels(seconds, names, login) :
     while True :
         while stock.is_trading() :
             print("starting cycle " + str(count) + " at " + str(time.ctime()))
-            conn = sqlite3.connect("tweets.db")
-            c = conn.cursor()
-            for name,feel in zip(names,sentiment_list) :
-                feel.start(seconds)
-                time.sleep(seconds)
-                score = feel.sentiment.value
-                date = str(time.ctime())
-                string = 'INSERT INTO ' + name + ' VALUES (?,?)'
-                print("recording " + name + "\'s sentiment at " + date)
-                c.execute(string,(date,score))
-                conn.commit()
+            try:
+                conn = sqlite3.connect("tweets.db")
+            except Error as e :
+                print(e)
+                return
+            finally :
+                c = conn.cursor()
+                for name,feel in zip(names,sentiment_list) :
+                    feel.start(seconds)
+                    time.sleep(seconds)
+                    score = feel.sentiment.value
+                    date = str(time.ctime())
+                    string = 'INSERT INTO ' + name + ' VALUES (?,?)'
+                    print("recording " + name + "\'s sentiment at " + date)
+                    c.execute(string,(date,score))
+                    conn.commit()
             time.sleep(120)
             count+=1
         stock.wait()
-    print(f'end: {time.ctime()}')
