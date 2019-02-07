@@ -3,10 +3,10 @@ import stock
 import threading
 
 def runner() :
-    sentiment_thread = threading.Thread(target=sentiment.print_feels(30,sentiment.sentiment_list,sentiment.names_list))
-    stock_thread = threading.Thread(target=stock.pull_stocks())
-    sentiment_thread.start()
+    stock_thread = threading.Thread(target=stock.pull_stocks)
+    sentiment_thread = threading.Thread(target=sentiment.get_feels,args=(120,sentiment.names_list,sentiment.login))
     stock_thread.start()
+    sentiment_thread.start()
     sentiment_thread.join()
     stock_thread.join()
 
