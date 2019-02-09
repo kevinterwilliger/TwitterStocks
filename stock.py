@@ -60,6 +60,12 @@ def wait() :
         difference = o - n
         print("Stock market closed, waiting " + str(difference.total_seconds()) + " seconds")
         time.sleep(difference.total_seconds())
+        while difference.total_seconds() > 60 :
+            time.sleep(3600)
+            t = datetime.timedelta(hours=1)
+            difference -= t
+            print("Resuming in " + str(difference))
+
         return
     elif now < open :
         o = datetime.timedelta(hours=open.hour,minutes=open.minute)
@@ -74,4 +80,17 @@ def wait() :
 
         return
     else :
+        today = datetime.datetime.today().weekday()
+        d = 7-today
+        o = datetime.timedelta(hours=open.hour + 24*d, minutes=open.minute)
+        n = datetime.timedelta(hours=now.hour,minutes=now.minute,seconds=now.second,microseconds=now.microsecond)
+        difference = o - n
+        print("Stock market closed, waiting " + str(difference.total_seconds()) + " seconds")
+        time.sleep(difference.total_seconds())
+        while difference.total_seconds() > 60 :
+            time.sleep(3600)
+            t = datetime.timedelta(hours=1)
+            difference -= t
+            print("Resuming in " + str(difference))
+
         return
